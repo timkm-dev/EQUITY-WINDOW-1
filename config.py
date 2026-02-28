@@ -12,6 +12,19 @@ DB_CONFIG = {
 }
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+
+# Try to get from Streamlit Secrets if running on Streamlit Cloud
+try:
+    import streamlit as st
+    if "DATABASE_URL" in st.secrets:
+        DATABASE_URL = st.secrets["DATABASE_URL"]
+except (ImportError, Exception):
+    pass
+
+# SQLAlchemy requires postgresql:// instead of postgres://
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
 if not DATABASE_URL:
     DATABASE_URL = (
         f"postgresql+psycopg2://{DB_CONFIG['user']}:{DB_CONFIG['password']}"
