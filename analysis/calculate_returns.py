@@ -88,7 +88,7 @@ def calculate_returns(df: pd.DataFrame) -> pd.DataFrame:
 
 def sharpe_ratio(df: pd.DataFrame) -> float:
     """Annualised Sharpe ratio using daily simple returns."""
-    daily_rf = RISK_FREE_RATE / 252
+    daily_rf = RISK_FREE_RATE / 252 #0.05 - the tbill rate
     excess = df["simple_return"].dropna() - daily_rf
     if excess.std() == 0:
         return 0.0
