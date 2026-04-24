@@ -132,7 +132,7 @@ def fetch_and_insert_prices():
                 VALUES (:date, :open, :high, :low, :close, :volume, :adj_close, :asset_id)
                 ON CONFLICT (asset_id, date) DO NOTHING
             """)
-
+#e
             rows = df.to_dict(orient="records")
             with engine.begin() as upsert_conn:
                 # Count existing rows for this ticker so we can report how many were new
