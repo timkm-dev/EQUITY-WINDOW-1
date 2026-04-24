@@ -41,7 +41,7 @@ def load_all_prices(ticker: str = None) -> pd.DataFrame:
         df = pd.read_sql(text(query), conn, params=params)
 
     if not df.empty:
-        df["date"] = pd.to_datetime(df["date"])
+        df["date"] = pd.to_datetime(df["date"]).dt.date
         df = df.set_index("date")
 
     return df

@@ -54,10 +54,9 @@ max_date = df_all.index.max()
 
 # Data freshness check
 from datetime import date, timedelta
-latest_date = pd.Timestamp(max_date)
-st.sidebar.caption(f"Data as of: {latest_date.date()}")
-if latest_date < pd.Timestamp(date.today() - timedelta(days=3)):
-    st.sidebar.warning(f"Data may be stale (last: {latest_date.date()}). Run ingestion to update.")
+st.sidebar.caption(f"Data as of: {max_date}")
+if max_date < date.today() - timedelta(days=3):
+    st.sidebar.warning(f"Data may be stale (last: {max_date}). Run ingestion to update.")
 
 date_range = st.sidebar.date_input(
     "Select Date Range",
