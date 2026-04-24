@@ -52,6 +52,12 @@ selected_ticker = selected_ticker_formatted.split(" - ")[0] if selected_ticker_f
 min_date = df_all.index.min()
 max_date = df_all.index.max()
 
+# Data freshness check
+from datetime import date, timedelta
+st.sidebar.caption(f"Data as of: {max_date}")
+if max_date < date.today() - timedelta(days=3):
+    st.sidebar.warning(f"Data may be stale (last: {max_date}). Run ingestion to update.")
+
 date_range = st.sidebar.date_input(
     "Select Date Range",
     value=(min_date, max_date),

@@ -161,4 +161,10 @@ if __name__ == "__main__":
     logger.info("Starting ingestion...")
     insert_assets()
     fetch_and_insert_prices()
+
+    # Report the latest date in the database
+    engine = get_engine()
+    with engine.connect() as conn:
+        latest = conn.execute(text("SELECT MAX(date) FROM prices")).scalar()
+    logger.info(f"Latest price date in DB: {latest}")
     logger.info("Ingestion complete.")
