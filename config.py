@@ -18,7 +18,7 @@ try:
     import streamlit as st
     if "DATABASE_URL" in st.secrets:
         DATABASE_URL = st.secrets["DATABASE_URL"]
-except (ImportError, Exception):
+except (ImportError, FileNotFoundError):
     pass
 
 # SQLAlchemy requires postgresql:// instead of postgres://
@@ -30,3 +30,6 @@ if not DATABASE_URL:
         f"postgresql+psycopg2://{DB_CONFIG['user']}:{DB_CONFIG['password']}"
         f"@{DB_CONFIG['host']}:{DB_CONFIG['port']}/{DB_CONFIG['dbname']}"
     )
+
+# Analysis constants
+RISK_FREE_RATE = 0.05  # annual, e.g. US T-bill rate

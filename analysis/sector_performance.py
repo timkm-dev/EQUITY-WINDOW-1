@@ -5,13 +5,13 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
-import seaborn as sns
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if PROJECT_ROOT not in os.sys.path:
     os.sys.path.insert(0, PROJECT_ROOT)
 
 from analysis.data import load_all_prices
+from config import RISK_FREE_RATE
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 OUTPUT_DIR = os.path.dirname(__file__)
 os.makedirs(os.path.join(OUTPUT_DIR, "plots"), exist_ok=True)
 
-RISK_FREE_RATE = 0.05  # annual
+
 
 
 
