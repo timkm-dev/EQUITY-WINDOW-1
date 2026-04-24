@@ -87,4 +87,4 @@ migrate_to_supabase.py      # Push local data to Supabase
 
 ## Tech stack
 
-Python 3.11, PostgreSQL 15, SQLAlchemy, psycopg2, yfinance, pandas, numpy, Streamlit, Plotly, matplotlib, seaborn, Docker.
+Python 3.11, PostgreSQL 15, SQLAlchemy, psycopg2, yfinance, pandas, numpy, Streamlit, Plotly, matplotlib, Docker.
