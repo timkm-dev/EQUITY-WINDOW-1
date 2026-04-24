@@ -6,13 +6,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import seaborn as sns
-from sqlalchemy import text
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if PROJECT_ROOT not in os.sys.path:
     os.sys.path.insert(0, PROJECT_ROOT)
 
-from db.connection import get_engine
+from analysis.data import load_all_prices
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -23,42 +22,7 @@ os.makedirs(os.path.join(OUTPUT_DIR, "plots"), exist_ok=True)
 RISK_FREE_RATE = 0.05  # annual, e.g. US T-bill rate
 
 
-def get_prices_data(ticker: str = None) -> pd.DataFrame:
-    """
-    Fetch adjusted close prices for one ticker (or all if ticker=None).
-    Returns DataFrame with columns: date (index), ticker, company_name, adj_close
-    """
-    engine = get_engine()
 
-    query = """
-    SELECT
-        p.date,
-        a.ticker,
-        a.company_name,
-        p.adj_close
-    FROM prices p
-    JOIN assets a ON p.asset_id = a.id
-    WHERE p.adj_close IS NOT NULL
-    """
-
-    params = {}
-
-    if ticker:
-        query += " AND a.ticker=:ticker"
-        params["ticker"] = ticker.upper()
-
-    query += " ORDER BY a.ticker, p.date"
-
-    with engine.connect() as conn:
-        df = pd.read_sql(text(query), conn, params=params)
-
-    if df.empty:
-        logger.warning(f"No price data found{f' for {ticker}' if ticker else ''}")
-        return pd.DataFrame()
-
-    df["date"] = pd.to_datetime(df["date"])
-    df = df.set_index("date")
-    return df
 
 
 def calculate_returns(df: pd.DataFrame) -> pd.DataFrame:
@@ -184,7 +148,7 @@ def print_summary(df: pd.DataFrame, ticker: str, company_name: str):
 
 
 def main():
-    df_raw = get_prices_data()  # all tickers
+    df_raw = load_all_prices()  # all tickers
 
     if df_raw.empty:
         logger.error("No data available. Run ingestion first.")

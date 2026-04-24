@@ -1,7 +1,5 @@
 import pandas as pd
-import streamlit as st
 import os
-import sys
 from sqlalchemy import text
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -10,14 +8,15 @@ if PROJECT_ROOT not in os.sys.path:
 
 from db.connection import get_engine
 
-@st.cache_data(ttl=3600)
-def load_all_prices() -> pd.DataFrame:
+
+def load_all_prices(ticker: str = None) -> pd.DataFrame:
     """
-    Fetch all price data with ticker and sector info.
+    Fetch all price data with ticker, company name, and sector info.
+    Optionally filter by a single ticker.
     Returns DataFrame indexed by date with columns: ticker, company_name, sector, adj_close
     """
     engine = get_engine()
-    
+
     query = """
     SELECT
         p.date,
@@ -28,19 +27,26 @@ def load_all_prices() -> pd.DataFrame:
     FROM prices p
     JOIN assets a ON p.asset_id = a.id
     WHERE p.adj_close IS NOT NULL
-    ORDER BY a.ticker, p.date
     """
-    
+
+    params = {}
+
+    if ticker:
+        query += " AND a.ticker=:ticker"
+        params["ticker"] = ticker.upper()
+
+    query += " ORDER BY a.ticker, p.date"
+
     with engine.connect() as conn:
-        df = pd.read_sql(text(query), conn)
+        df = pd.read_sql(text(query), conn, params=params)
 
     if not df.empty:
-        df["date"] = pd.to_datetime(df["date"]).dt.date
+        df["date"] = pd.to_datetime(df["date"])
         df = df.set_index("date")
-        
+
     return df
 
-@st.cache_data(ttl=3600)
+
 def get_ticker_list() -> list:
     """Returns a list of formatted strings: 'TICKER - Company Name'"""
     try:
@@ -50,7 +56,7 @@ def get_ticker_list() -> list:
             df = pd.read_sql(text(query), conn)
         if df.empty:
             return []
-        
+
         return [f"{row['ticker']} - {row['company_name']}" for _, row in df.iterrows()]
     except Exception:
         return []
