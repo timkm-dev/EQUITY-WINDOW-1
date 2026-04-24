@@ -135,12 +135,22 @@ def fetch_and_insert_prices():
             """)
 
             rows = df.to_dict(orient="records")
-            inserted = 0
             with engine.begin() as upsert_conn:
-                for row in rows:
-                    result = upsert_conn.execute(insert_query, row)
-                    inserted += result.rowcount
+                # Count existing rows for this ticker so we can report how many were new
+                before_count = upsert_conn.execute(
+                    text("SELECT COUNT(*) FROM prices WHERE asset_id = :aid"),
+                    {"aid": asset_id}
+                ).scalar()
 
+                # Batch insert -- one round trip instead of one per row
+                upsert_conn.execute(insert_query, rows)
+
+                after_count = upsert_conn.execute(
+                    text("SELECT COUNT(*) FROM prices WHERE asset_id = :aid"),
+                    {"aid": asset_id}
+                ).scalar()
+
+            inserted = after_count - before_count
             logger.info(f"→ {ticker} done — {inserted}/{len(df)} new rows inserted (duplicates skipped)")
 
         except Exception as e:
